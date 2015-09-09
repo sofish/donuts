@@ -1,0 +1,20 @@
+{
+  "name": "donuts",
+  "version": "0.0.1",
+  "authors": [
+    "sofish <happinesz@gmail.com>"
+  ],
+  "license": "Private",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "onsenui": "~1.3.8",
+    "angular-route": "~1.4.4",
+    "angular": "~1.4.4"
+  }
+}

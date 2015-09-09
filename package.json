@@ -1,0 +1,28 @@
+{
+  "name": "donuts",
+  "version": "0.0.1",
+  "description": "cli interface for donuts",
+  "main": "bin/donuts.js",
+  "bin": "bin/donuts.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sofish/donuts.git"
+  },
+  "keywords": [
+    "donuts",
+    "hybrid",
+    "html5"
+  ],
+  "author": "sofish",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sofish/donuts/issues"
+  },
+  "homepage": "https://github.com/sofish/donuts",
+  "devDependencies": {
+    "commander": "^2.8.1"
+  }
+}

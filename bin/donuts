@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+'use strict';
+
+const program = require('commander');
+const childProcess = require('child_process');
+const errHandler = (err) => {
+  if(err) return console.log(err.message);
+};
+
+// create
+program
+  .version(require('../package.json').version)
+  .usage('[options] <command>')
+  .command('create <folder> [identifier] [name]')
+  .action((folder, identifier, name) => {
+    identifier = identifier || 'com.helloworld';
+    name = 'helloworld';
+    childProcess.exec(`cordova create ${folder} ${identifier} ${name}`, errHandler);
+  });
+
+// dev
+program
+  .command('dev')
+  .action(() => {
+    let cmd = 'node_modules/gulp/bin/gulp.js';
+    childProcess.exec(`${cmd} dev`, errHandler).stdout.on('data', log => console.log(log));
+  });
+
+// run
+program
+  .command('run [platform]')
+  .action(platform => {
+    platform = platform || require('os').platform();
+    // TODO: more platform?
+    platform = /^ios|darwin$/.test(platform) ? 'ios' : 'android';
+
+    // TODO: remove `--device` option?
+    let ps = childProcess.exec(`cordova run ${platform} --device`, errHandler)
+      .stdout.on('data', log => console.log(log));
+  });
+
+program.parse(process.argv);

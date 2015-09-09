@@ -1,0 +1,9 @@
+.idea
+*.log
+.DS_Store
+.tmp
+node_modules/
+bower_component/
+www/vender
+www/.dist
+platforms

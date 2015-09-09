@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport"
+        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+  <link rel="stylesheet" href="vender/onsenui/build/css/onsenui.css" type="text/css">
+  <link rel="stylesheet" href="vender/onsenui/build/css/onsen-css-components.css"/>
+  <link rel="stylesheet" type="text/css" href="dist/app.css">
+  <script type="text/javascript" src="cordova.js"></script>
+  <script src="vender/angular/angular.min.js"></script>
+  <script src="vender/onsenui/build/js/onsenui.min.js"></script>
+  <script type="text/javascript" src="dist/app.js"></script>
+  <title>Donuts</title>
+</head>
+<body ng-controller="AppController">
+  <ons-toolbar>
+    <div class="center">Donuts</div>
+  </ons-toolbar>
+  <ons-tabbar>
+    <ons-tab page="/" icon="fa-time"></ons-tab>
+    <ons-tab page="page2.html" icon="fa-user"></ons-tab>
+    <ons-tab page="page3.html" icon="fa-flask"></ons-tab>
+  </ons-tabbar>
+</body>
+</html>
