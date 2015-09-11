@@ -27,6 +27,7 @@
   "homepage": "https://github.com/sofish/donuts",
   "dependencies": {
     "commander": "^2.8.1",
-    "download": "^4.2.0"
+    "download": "^4.2.0",
+    "progress": "^1.1.8"
   }
 }

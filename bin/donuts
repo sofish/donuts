@@ -12,12 +12,19 @@ const pkg = require('../package.json');
 const noop = function() {};
 
 // download helper
+let timer;
+let ProgressBar = require('progress');
+let bar = new ProgressBar(':bar', { total: 80 });
 const download = (path, callback, mode) => {
   let url = pkg.homepage + '/archive/master.zip';
   let Download = require('download');
 
   mode = mode || '755';
   callback = callback || noop;
+
+  timer = setInterval(function () {
+    bar.tick();
+  }, 300);
 
   new Download({ mode, extract: true })
     .get(url)
@@ -26,9 +33,14 @@ const download = (path, callback, mode) => {
 };
 
 // install dependencies
-const dependencies = (folder) =>{
-  let cmd = `rm -rf master.zip && mv donuts-master/src/www/* ${folder}/www`;
-
+const install = (folder) =>{
+  let cmd = `rm -rf master.zip && mv donuts-master/src/www/* ${folder}/www && rm -rf donuts-master`;
+  childProcess.exec(cmd, function(err) {
+    if(err) return console.log(err.message);
+    console.log('\nDependencies installed.');
+    bar.complete = 1;
+    clearInterval(timer);
+  }).stdout.on('data', log);
 };
 
 // create
@@ -45,9 +57,9 @@ program
       if(err) return console.log(err.message);
 
       // download `/www` file from remote repo
-      download('./', (err, files) => {
+      download('./', (err) => {
         if(err) return console.log(err);
-
+        install(folder);
       });
     }).stdout.on('data', () => {
       console.log('A donuts project was born.');
