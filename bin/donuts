@@ -3,8 +3,32 @@
 
 const program = require('commander');
 const childProcess = require('child_process');
-const errHandler = (err) => {
-  if(err) return console.log(err.message);
+const err = (err) => err && console.log(err.message);
+const log = log => console.log(log);
+const type = require('os').type();
+const isDarwin = type === 'Darwin';
+const isWindows = type === 'Windows_NT';
+const pkg = require('../package.json');
+const noop = function() {};
+
+// download helper
+const download = (path, callback, mode) => {
+  let url = pkg.homepage + '/archive/master.zip';
+  let Download = require('download');
+
+  mode = mode || '755';
+  callback = callback || noop;
+
+  new Download({ mode, extract: true })
+    .get(url)
+    .dest(path)
+    .run(callback);
+};
+
+// install dependencies
+const dependencies = (folder) =>{
+  let cmd = `rm -rf master.zip && mv donuts-master/src/www/* ${folder}/www`;
+
 };
 
 // create
@@ -15,7 +39,20 @@ program
   .action((folder, identifier, name) => {
     identifier = identifier || 'com.helloworld';
     name = 'helloworld';
-    childProcess.exec(`cordova create ${folder} ${identifier} ${name}`, errHandler);
+
+    // create a cordova project
+    childProcess.exec(`cordova create ${folder} ${identifier} ${name}`, (err) => {
+      if(err) return console.log(err.message);
+
+      // download `/www` file from remote repo
+      download('./', (err, files) => {
+        if(err) return console.log(err);
+
+      });
+    }).stdout.on('data', () => {
+      console.log('A donuts project was born.');
+      console.log('Installing dependencies...');
+    });
   });
 
 // dev
@@ -23,20 +60,18 @@ program
   .command('dev')
   .action(() => {
     let cmd = 'node_modules/gulp/bin/gulp.js';
-    childProcess.exec(`${cmd} dev`, errHandler).stdout.on('data', log => console.log(log));
+    childProcess.exec(`${cmd} dev`, errHandler).stdout.on('data', log);
   });
 
 // run
 program
   .command('run [platform]')
   .action(platform => {
-    platform = platform || require('os').platform();
-    // TODO: more platform?
-    platform = /^ios|darwin$/.test(platform) ? 'ios' : 'android';
+    platform = platform || (isDarwin ? 'ios' : 'android');
 
     // TODO: remove `--device` option?
-    let ps = childProcess.exec(`cordova run ${platform} --device`, errHandler)
-      .stdout.on('data', log => console.log(log));
+    let ps = childProcess.exec(`cordova run ${platform} --device`, err)
+      .stdout.on('data', log);
   });
 
 program.parse(process.argv);

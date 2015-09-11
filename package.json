@@ -1,11 +1,14 @@
 {
   "name": "donuts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "cli interface for donuts",
   "main": "bin/donuts.js",
-  "bin": "bin/donuts.js",
+  "preferGlobal": "true",
+  "directories": {
+    "bin": "./bin"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "preinstall": "npm install -g cordova"
   },
   "repository": {
     "type": "git",
@@ -22,7 +25,8 @@
     "url": "https://github.com/sofish/donuts/issues"
   },
   "homepage": "https://github.com/sofish/donuts",
-  "devDependencies": {
-    "commander": "^2.8.1"
+  "dependencies": {
+    "commander": "^2.8.1",
+    "download": "^4.2.0"
   }
 }
