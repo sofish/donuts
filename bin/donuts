@@ -3,43 +3,62 @@
 
 const program = require('commander');
 const childProcess = require('child_process');
+const https = require('https');
+
 const err = (err) => err && console.log(err.message);
 const log = log => console.log(log);
+const noop = function() {};
+
+const pkg = require('../package.json');
 const type = require('os').type();
 const isDarwin = type === 'Darwin';
 const isWindows = type === 'Windows_NT';
-const pkg = require('../package.json');
-const noop = function() {};
+
 
 // download helper
-let timer;
-let ProgressBar = require('progress');
-let bar = new ProgressBar(':bar', { total: 80 });
-const download = (path, callback, mode) => {
-  let url = pkg.homepage + '/archive/master.zip';
-  let Download = require('download');
+const download = (dir, callback) => {
+  let fs = require('fs');
+  let path = require('path');
+  let ProgressBar = require('progress');
+  let bar = new ProgressBar(':bar', { total: 80 });
+  let file = fs.createWriteStream(dir + '/master.zip');
+  let req = https.request({
+    hostname: 'codeload.github.com',
+    port: 443,
+    path: '/sofish/donuts/zip/master'
+  });
 
-  mode = mode || '755';
-  callback = callback || noop;
+  req.on('response', res => {
+    let len = parseInt(res.headers['content-length'], 10);
+    let bar = new ProgressBar('Downloading [:bar] :percent', {
+      complete: '=',
+      incomplete: ' ',
+      width: 20,
+      total: len
+    });
 
-  timer = setInterval(function () {
-    bar.tick();
-  }, 300);
+    res.pipe(file);
+    file.on('finish', function() {
+      file.close(callback);
+    });
 
-  new Download({ mode, extract: true })
-    .get(url)
-    .dest(path)
-    .run(callback);
+    res.on('data', chunk => bar.tick(chunk.length));
+  });
+  req.end();
 };
 
 // install dependencies
-const install = (folder) =>{
-  let cmd = `rm -rf master.zip && mv donuts-master/src/www/* ${folder}/www && rm -rf donuts-master`;
+const install = folder =>{
+  let cmd = `tar -xvf master.zip &&
+    rm -rf master.zip ${folder}/www &&
+    mv donuts-master/src/* ${folder} &&
+    rm -rf donuts-master &&
+    cd ${folder} &&
+    bower install`;
+
   childProcess.exec(cmd, function(err) {
     if(err) return console.log(err.message);
     console.log('\nDependencies installed.');
-    bar.complete = 1;
-    clearInterval(timer);
   }).stdout.on('data', log);
 };
 
@@ -47,7 +66,7 @@ const install = (folder) =>{
 program
   .version(require('../package.json').version)
   .usage('[options] <command>')
-  .command('create <folder> [identifier] [name]')
+  .command('create <folder> [identifier] [name]', 'create project')
   .action((folder, identifier, name) => {
     identifier = identifier || 'com.helloworld';
     name = 'helloworld';
@@ -62,27 +81,28 @@ program
         install(folder);
       });
     }).stdout.on('data', () => {
-      console.log('A donuts project was born.');
-      console.log('Installing dependencies...');
+      console.log('A donuts project was born. Installing dependencies...');
     });
   });
 
 // dev
 program
-  .command('dev')
+  .command('dev', 'setup dev env')
   .action(() => {
     let cmd = 'node_modules/gulp/bin/gulp.js';
-    childProcess.exec(`${cmd} dev`, errHandler).stdout.on('data', log);
+    childProcess.exec(`${cmd} dev`, err).stdout.on('data', log);
   });
 
 // run
 program
-  .command('run [platform]')
+  .command('run [platform]', 'run with emulator')
+  .option('-D, --device', 'run with device')
   .action(platform => {
     platform = platform || (isDarwin ? 'ios' : 'android');
 
     // TODO: remove `--device` option?
-    let ps = childProcess.exec(`cordova run ${platform} --device`, err)
+    let device = program.device ? '--device' : '';
+    childProcess.exec(`cordova run ${platform} ${device}`, err)
       .stdout.on('data', log);
   });
 
