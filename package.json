@@ -1,6 +1,6 @@
 {
   "name": "donuts",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "cli interface for donuts",
   "main": "bin/donuts.js",
   "preferGlobal": "true",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/sofish/donuts",
   "dependencies": {
+    "chalk": "^1.1.1",
     "commander": "^2.8.1",
     "progress": "^1.1.8"
   }

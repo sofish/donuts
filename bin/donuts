@@ -4,6 +4,7 @@
 const program = require('commander');
 const childProcess = require('child_process');
 const https = require('https');
+const chalk  = require('chalk');
 
 const err = (err) => err && console.log(err.message);
 const log = log => console.log(log);
@@ -17,11 +18,9 @@ const isWindows = type === 'Windows_NT';
 
 // download helper
 const download = (dir, callback) => {
-  let fs = require('fs');
-  let path = require('path');
   let ProgressBar = require('progress');
   let bar = new ProgressBar(':bar', { total: 80 });
-  let file = fs.createWriteStream(dir + '/master.zip');
+  let file = require('fs').createWriteStream(dir + '/master.zip');
   let req = https.request({
     hostname: 'codeload.github.com',
     port: 443,
@@ -30,7 +29,7 @@ const download = (dir, callback) => {
 
   req.on('response', res => {
     let len = parseInt(res.headers['content-length'], 10);
-    let bar = new ProgressBar('Downloading [:bar] :percent', {
+    let bar = new ProgressBar(chalk.cyan('Downloading [:bar] :percent'), {
       complete: '=',
       incomplete: ' ',
       width: 20,
@@ -38,17 +37,15 @@ const download = (dir, callback) => {
     });
 
     res.pipe(file);
-    file.on('finish', function() {
-      file.close(callback);
-    });
-
     res.on('data', chunk => bar.tick(chunk.length));
+    file.on('finish', () => file.close(callback));
   });
   req.end();
 };
 
+
 // install dependencies
-const install = folder =>{
+const install = folder => {
   let cmd = `tar -xvf master.zip &&
     rm -rf master.zip ${folder}/www &&
     mv donuts-master/src/* ${folder} &&
@@ -56,54 +53,60 @@ const install = folder =>{
     cd ${folder} &&
     bower install`;
 
-  childProcess.exec(cmd, function(err) {
+  childProcess.exec(cmd, err => {
     if(err) return console.log(err.message);
-    console.log('\nDependencies installed.');
+    console.log(chalk.bold.green('Dependencies installed.'));
   }).stdout.on('data', log);
 };
+
 
 // create
 program
   .version(require('../package.json').version)
-  .usage('[options] <command>')
-  .command('create <folder> [identifier] [name]', 'create project')
+  .usage(chalk.cyan('[options] <command>'))
+  .command('create <folder> [identifier] [name]')
+  .description(chalk.yellow('create project'))
   .action((folder, identifier, name) => {
     identifier = identifier || 'com.helloworld';
     name = 'helloworld';
 
     // create a cordova project
-    childProcess.exec(`cordova create ${folder} ${identifier} ${name}`, (err) => {
+    childProcess.exec(`cordova create ${folder} ${identifier} ${name}`, err => {
       if(err) return console.log(err.message);
 
       // download `/www` file from remote repo
-      download('./', (err) => {
+      download('./', err => {
         if(err) return console.log(err);
         install(folder);
       });
     }).stdout.on('data', () => {
-      console.log('A donuts project was born. Installing dependencies...');
+      console.log(chalk.green('A donuts project was born.') + ' Installing dependencies...');
     });
   });
 
+
 // dev
 program
-  .command('dev', 'setup dev env')
+  .command('dev')
+  .description(chalk.yellow('setup dev env'))
   .action(() => {
     let cmd = 'node_modules/gulp/bin/gulp.js';
     childProcess.exec(`${cmd} dev`, err).stdout.on('data', log);
   });
 
+
 // run
 program
-  .command('run [platform]', 'run with emulator')
+  .command('run [platform]')
+  .description(chalk.yellow('run with emulator'))
   .option('-D, --device', 'run with device')
   .action(platform => {
     platform = platform || (isDarwin ? 'ios' : 'android');
 
-    // TODO: remove `--device` option?
     let device = program.device ? '--device' : '';
     childProcess.exec(`cordova run ${platform} ${device}`, err)
       .stdout.on('data', log);
   });
+
 
 program.parse(process.argv);
