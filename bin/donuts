@@ -5,6 +5,7 @@ const program = require('commander');
 const childProcess = require('child_process');
 const https = require('https');
 const chalk  = require('chalk');
+const fs = require('fs');
 
 const err = (err) => err && console.log(err.message);
 const log = log => console.log(log);
@@ -19,7 +20,7 @@ const isWindows = type === 'Windows_NT';
 // download helper
 const download = (dir, callback) => {
   let ProgressBar = require('progress');
-  let file = require('fs').createWriteStream(dir + '/master.zip');
+  let file = fs.createWriteStream(dir + '/master.zip');
   let req = https.request({
     hostname: 'codeload.github.com',
     port: 443,
@@ -28,7 +29,7 @@ const download = (dir, callback) => {
 
   req.on('response', res => {
     let len = parseInt(res.headers['content-length'], 10);
-    let bar = new ProgressBar(chalk.cyan('Downloading [:bar] :percent'), {
+    let bar = new ProgressBar(chalk.bold.cyan('Downloading [:bar] :percent'), {
       complete: '=',
       incomplete: ' ',
       width: 20,
@@ -63,9 +64,9 @@ const install = folder => {
 // create
 program
   .version(require('../package.json').version)
-  .usage(chalk.cyan('[options] <command>'))
+  .usage(chalk.grey('[options] <command>'))
   .command('create <folder> [identifier] [name]')
-  .description(chalk.yellow('create project'))
+  .description(chalk.yellow('\tcreate project'))
   .action((folder, identifier, name) => {
     identifier = identifier || 'com.helloworld';
     name = 'helloworld';
@@ -88,7 +89,7 @@ program
 // dev
 program
   .command('dev')
-  .description(chalk.yellow('setup dev env'))
+  .description(chalk.yellow('\tsetup dev env'))
   .action(() => {
     let cmd = 'node_modules/gulp/bin/gulp.js';
     childProcess.exec(`${cmd} dev`, err).stdout.on('data', log);
@@ -98,7 +99,7 @@ program
 // run
 program
   .command('run [platform]')
-  .description(chalk.yellow('run with emulator'))
+  .description(chalk.yellow('\trun with emulator'))
   .option('-D, --device', 'run with device')
   .action(platform => {
     platform = platform || (isDarwin ? 'ios' : 'android');
@@ -108,5 +109,42 @@ program
       .stdout.on('data', log);
   });
 
+// generate icons and splash screens
+program
+  .command('design')
+  .description(chalk.yellow('\tgenerate icons and splash screens'))
+  .option('-s, --splash', 'generate splash screens')
+  .option('-i, --icon', 'generate icons')
+  .action(() => {
+    let cmd = '';
+
+    try {
+      fs.statSync('icon.png');
+      cmd += 'cordova-icon';
+    } catch(e) {
+      console.log('Can\'t find ' + chalk.red('`icon.png`') + '.');
+    }
+
+    try {
+      fs.statSync('splash.png');
+      cmd += ' && cordova-splash';
+    } catch(e) {
+      console.log('Can\'t find ' + chalk.red('`splash.png`') + '.');
+    }
+
+    if(cmd) return childProcess.exec(cmd, err)
+      .stdout.on('data', log);
+    console.log();
+  });
+
+// examples
+program.on('--help', () => {
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ ' + chalk.bold.cyan('donuts') + ' run ' + chalk.yellow('--device') + '\t\t\trun with device');
+  console.log('');
+});
 
 program.parse(process.argv);
+
+if(process.argv.length < 3) program.help();

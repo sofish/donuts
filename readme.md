@@ -32,6 +32,15 @@ $ donuts run
 ## you can run with a device with the `--device` flag
 ```
 
+## generate icons and splash screens
+
+Make sure you have add `icon.png` and `splash.png` to the
+root path of the app.
+
+```bash
+$ donuts design
+```
+
 ## help
 
 ```

@@ -28,3 +28,8 @@ it means that we're actually sending a request to
 LOCAL/PREFIX/path/to/resource -> REMOTE/path/to/resource
 ```
 
+## App Icon and Splash Screen
+
+Add `icon.png` and `splash.png` to the root path of the app, and run `$donuts design`
+to generate icons and splash screens. In order to create pixel-perfect splash screens,
+you may like to checkout this post: [Icons and Splash screens](http://cordova.apache.org/docs/en/5.0.0/config_ref_images.md.html).
