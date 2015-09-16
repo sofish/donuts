@@ -17,8 +17,8 @@ that contains an object like this:
   }
 }
 ```
-We use the `key` as a identifier to tell the server that we would love to
-send a request to a special domain ( `value` ). eg, suppose the url of the
+We use the `key` as an identifier to tell the server that we would love to
+send a request to a special domain ( `value` ). eg, supposing the url of the
 dev ENV is `http://127.0.0.1:8023`. When we visit
 `http://127.0.0.1:8023/google/path/to/resource` in a web browser,
 it means that we're actually sending a request to
