@@ -8,7 +8,7 @@
     "bin": "./bin"
   },
   "scripts": {
-    "preinstall": "npm install -g cordova"
+    "preinstall": "(which cordova) || npm install -g cordova; (which bower) || npm install bower -g"
   },
   "repository": {
     "type": "git",
