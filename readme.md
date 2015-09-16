@@ -18,6 +18,7 @@ $ donuts create <folder> [identifier] [name]
 ## setup dev ENV
 
 ```bash
+$ cd /path/of/your/app
 $ donuts dev
 ## build with gulp
 ## run a server at http://0.0.0.0:8023
