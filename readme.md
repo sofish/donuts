@@ -1,9 +1,11 @@
 Donuts is a wrapper for cordova, use it to setup and run a component-base stack that helps you develop native app with HTML, CSS and JS in an easy way.
 
 ## install
+
+Make sure you have Node/NPM installed.
+
 ```bash
 $ npm install donuts -g
-$ npm install bower -g ## manage components with bower
 ```
 
 ## create project
