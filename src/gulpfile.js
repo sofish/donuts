@@ -4,6 +4,7 @@ const DEST = 'www/dist';
 const gulp = require('gulp');
 const plumber = require('gulp-plumber');
 const gutil = require('gulp-util');
+const pkg = require('./package');
 
 
 // load and compress css
@@ -67,7 +68,7 @@ gulp.task('lint', () => {
 gulp.task(
   'clean',
   () => gulp.src(['www/dist'], { read: false })
-      .pipe(require('gulp-clean'))
+    .pipe(require('gulp-clean'))
 );
 
 
@@ -75,8 +76,21 @@ gulp.task(
 gulp.task('server', () => {
   let http = require('http');
   let statics = require('node-static');
+  let request = require('request');
 
   http.createServer((req, res) => {
+    // url proxy
+    let url = req.url.split('/');
+    let prefix = url[1];
+    let target = pkg.proxy && pkg.proxy[prefix];
+    if(target) {
+      url = target + (target.slice(-1) === '/' ? '' : '/') + url.slice(2).join('/');
+      return request({
+        method: req.method,
+        uri: url
+      }).pipe(res);
+    }
+
     if(['/cordova.js', '/favicon.ico'].indexOf(req.url) !== -1) {
       res.setHeader('Content-Type', req.url.match(/\.js$/) ? 'text/javascript' : 'image/png');
       return res.end();
@@ -90,6 +104,7 @@ gulp.task('server', () => {
         res.end();
       });
     }).resume();
+
   }).listen(8023);
 
   gutil.log('Dev Server start at: http://127.0.0.1:8023');
