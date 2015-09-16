@@ -19,7 +19,6 @@ const isWindows = type === 'Windows_NT';
 // download helper
 const download = (dir, callback) => {
   let ProgressBar = require('progress');
-  let bar = new ProgressBar(':bar', { total: 80 });
   let file = require('fs').createWriteStream(dir + '/master.zip');
   let req = https.request({
     hostname: 'codeload.github.com',
@@ -48,10 +47,11 @@ const download = (dir, callback) => {
 const install = folder => {
   let cmd = `tar -xvf master.zip &&
     rm -rf master.zip ${folder}/www &&
-    mv donuts-master/src/* ${folder} &&
+    mv donuts-master/src/* donuts-master/src/.bowerrc ${folder} &&
     rm -rf donuts-master &&
     cd ${folder} &&
-    bower install`;
+    bower install &&
+    npm install .`;
 
   childProcess.exec(cmd, err => {
     if(err) return console.log(err.message);

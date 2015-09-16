@@ -1,24 +1,22 @@
-var DEST = 'www/dist';
-var gulp = require('gulp');
-var plumber = require('gulp-plumber');
-var gutil = require('gulp-util');
+const DEST = 'www/dist';
+const gulp = require('gulp');
+const plumber = require('gulp-plumber');
+const gutil = require('gulp-util');
 
 
 // load and compress css
-gulp.task('js', function () {
-  var jsPath = ['www/app.js', 'www/pages/**/*.js'];
-  var uglify = require('gulp-uglify');
-  var babelify = require('babelify');
-  var browserify = require('browserify');
-  var glob = require('glob');
-  var source = require('vinyl-source-stream');
-  var buffer = require('vinyl-buffer');
+gulp.task('js', () => {
+  let jsPath = ['www/app.js', 'www/pages/**/*.js'];
+  let uglify = require('gulp-uglify');
+  let babelify = require('babelify');
+  let browserify = require('browserify');
+  let glob = require('glob');
+  let source = require('vinyl-source-stream');
+  let buffer = require('vinyl-buffer');
 
-  jsPath.reduce(function(ret, sec) {
-    return ret.concat(glob.sync(sec));
-  }, []).forEach(function(dir) {
-    var path = dir.replace('www/', '').split('/');
-    var name = path.pop();
+  jsPath.reduce((ret, sec) => ret.concat(glob.sync(sec)), []).forEach(dir => {
+    let path = dir.replace('www/', '').split('/');
+    let name = path.pop();
     path = path.length ? path.join('/') : '';
 
     browserify({ entries: dir, debug: true })
@@ -26,6 +24,8 @@ gulp.task('js', function () {
       .bundle()
       .pipe(plumber())
       .pipe(source(name))
+
+      // TODO: uncomment to compress your source code
       //.pipe(buffer())
       //.pipe(uglify())
       .pipe(gulp.dest(DEST + '/' + path));
@@ -33,9 +33,9 @@ gulp.task('js', function () {
 });
 
 // load css with CSSNext
-var cssPath = ['www/app.css', 'www/pages/*.css'];
-gulp.task('css', function () {
-  var cssnext = require('gulp-cssnext');
+let cssPath = ['www/app.css', 'www/pages/*.css'];
+gulp.task('css', () => {
+  let cssnext = require('gulp-cssnext');
 
   return gulp.src(cssPath)
     .pipe(plumber())
@@ -51,8 +51,8 @@ gulp.task('css', function () {
 
 
 // js lint with jshint
-var jslintPath = ['www/app.js', 'www/pages/**/*.js', 'gulpfile.js'];
-gulp.task('lint', function() {
+let jslintPath = ['www/app.js', 'www/pages/**/*.js', 'gulpfile.js'];
+gulp.task('lint', () => {
   var jshint = require('gulp-jshint');
 
   return gulp.src(jslintPath)
@@ -62,26 +62,26 @@ gulp.task('lint', function() {
 
 
 // clean dist dir
-gulp.task('clean', function () {
-  var clean = require('gulp-clean');
-  return gulp.src(['www/dist'], { read: false })
-    .pipe(clean());
-});
+gulp.task(
+  'clean',
+  () => gulp.src(['www/dist'], { read: false })
+      .pipe(require('gulp-clean'))
+);
 
 
 // create http server
-gulp.task('server', function() {
-  var http = require('http');
-  var static = require('node-static');
+gulp.task('server', () => {
+  let http = require('http');
+  let static = require('node-static');
 
-  http.createServer(function(req, res) {
+  http.createServer((req, res) => {
     if(['/cordova.js', '/favicon.ico'].indexOf(req.url) !== -1) {
       res.setHeader('Content-Type', req.url.match(/\.js$/) ? 'text/javascript' : 'image/png');
       return res.end();
     }
 
-    req.addListener('end', function() {
-      new static.Server('./www').serve(req, res, function (err, result) {
+    req.addListener('end', () => {
+      new static.Server('./www').serve(req, res, (err, result) => {
         if (!err) return;
         console.error("Error serving " + req.url + " - " + err.message);
         res.writeHead(err.status, err.headers);
@@ -95,7 +95,7 @@ gulp.task('server', function() {
 
 
 // dev env
-gulp.task('dev', ['js', 'css', 'server'], function() {
+gulp.task('dev', ['js', 'css', 'server'], () => {
   gulp.watch(jslintPath, ['js', 'lint']);
   gulp.watch(cssPath, ['css']);
 });
