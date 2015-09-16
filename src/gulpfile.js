@@ -1,3 +1,5 @@
+'use strict';
+
 const DEST = 'www/dist';
 const gulp = require('gulp');
 const plumber = require('gulp-plumber');
@@ -72,7 +74,7 @@ gulp.task(
 // create http server
 gulp.task('server', () => {
   let http = require('http');
-  let static = require('node-static');
+  let statics = require('node-static');
 
   http.createServer((req, res) => {
     if(['/cordova.js', '/favicon.ico'].indexOf(req.url) !== -1) {
@@ -81,7 +83,7 @@ gulp.task('server', () => {
     }
 
     req.addListener('end', () => {
-      new static.Server('./www').serve(req, res, (err, result) => {
+      new statics.Server('./www').serve(req, res, (err, result) => {
         if (!err) return;
         console.error("Error serving " + req.url + " - " + err.message);
         res.writeHead(err.status, err.headers);
